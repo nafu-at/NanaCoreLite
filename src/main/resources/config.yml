@@ -1,0 +1,43 @@
+###############################################
+#           Authentication settings           #
+###############################################
+auth:
+  # Specify the authentication type used for authentication with Misskey.
+  # TOKEN: Enter the token directly and execute.
+  # OAUTH: Authenticates the user using oAuth and requests an access token.
+  authType: TOKEN
+
+  # If you select TOKEN, enter your access token;
+  # if you select OAUTH, enter your application secret. (This feature does not currently work.)
+  key: "Your account token or application secret"
+
+  # This item is valid only when OAUTH is specified.
+  # Save the obtained access token in a file.
+  # Do not enable this setting in environments where data is shared.
+  saveToken: false
+
+  database:
+    databaseType: MARIADB
+    database: nanacore
+    address: localhost
+    user: nanacore
+    password: PaSsWoRd
+    prefix: nc_
+
+  discordToken: "Your account token here!"
+
+###############################################
+#                Basic settings               #
+###############################################
+basic:
+  # Specify the URL of the instance to connect.
+  # Enter the full URL here, not the host name.
+  instanceUrl: https://nijimiss.moe/
+
+  # You can specify the interval for sending requests. (millisecond)
+  queueInterval: 1000
+
+  # Maintain queues with different time bases for each module.
+  multiQueue: false
+
+  discordPrefix: "~~"

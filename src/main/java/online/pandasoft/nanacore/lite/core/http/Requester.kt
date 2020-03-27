@@ -1,0 +1,64 @@
+/*
+ * Copyright 2020 なふちょこ.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package online.pandasoft.nanacore.lite.core.http
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.slf4j.LoggerFactory
+import java.util.concurrent.Callable
+
+class Requester(
+    private var instanceUrl: String,
+    val context: RequestContext,
+    val handler: RequestResultHandler
+) :
+    Callable<Result> {
+    @Throws(Exception::class)
+    override fun call(): Result {
+        val requestBody: RequestBody = mapper.writeValueAsString(
+            context.requestParameter
+        ).toRequestBody(TYPE_JSON)
+        if (instanceUrl.endsWith("/"))
+            instanceUrl = instanceUrl.substring(0, instanceUrl.length - 1)
+        val request =
+            Request.Builder().url(instanceUrl + "/api/" + context.endpoint).post(requestBody).build()
+        okHttpClient.newCall(request).execute().use { response ->
+            log.debug(
+                "Received response: {} Header:\n{}",
+                response.code,
+                response.headers.toString()
+            )
+            return Result(
+                response.code,
+                context,
+                response.body!!.string()
+            )
+        }
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(Requester::class.java)
+        private val TYPE_JSON: MediaType? = "application/json; charset=utf-8".toMediaTypeOrNull()
+        private val mapper = ObjectMapper()
+        private val okHttpClient = OkHttpClient.Builder().build()
+    }
+
+}
